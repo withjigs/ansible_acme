@@ -15,4 +15,4 @@
         acme_version: 2
         acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
         contact: 
-          - mailto: withjigs@yahoo.com
+          - mailto:withjigs@yahoo.com
