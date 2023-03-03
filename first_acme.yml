@@ -1,13 +1,16 @@
 ---
 - name: First acme 
   hosts: all
+  become: true
 
   tasks:
-
+        
     - name: Ensure the account exists
       community.crypto.acme_account:
         account_key_content: "{{ private_key }}"
         state: present
         terms_agreed: true
+        acme_version: 1
+        acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
         contact: 
           - mailto: withjigs@yahoo.com
