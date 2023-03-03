@@ -18,6 +18,7 @@
       - name: Create private key for domain
         community.crypto.openssl_publickey:
           privatekey_path: "/etc/letsencrypt/keys/www.jigar.au.eu.org.key"
+          path: "/dev/null"
           type: RSA
           size: 4096
 
