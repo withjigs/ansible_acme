@@ -5,14 +5,31 @@
 
   tasks:
         
-    - debug: var=private_key
+      - name: Ensure the account exists
+        community.crypto.acme_account:
+          account_key_content: "{{ private_key }}"
+          state: present
+          terms_agreed: true
+          acme_version: 2
+          acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
+          contact: 
+            - mailto:withjigs@yahoo.com
+      
 
-    - name: Ensure the account exists
-      community.crypto.acme_account:
-        account_key_content: "{{ private_key }}"
-        state: present
-        terms_agreed: true
-        acme_version: 2
-        acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
-        contact: 
-          - mailto:withjigs@yahoo.com
+      - name: Generate CSR
+        community.crypto.openssl_csr:
+          path: "/etc/letsencrypt/csr/cert.jigar.au.eu.org.pem"
+          privatekey_path: "/etc/letsencrypt/keys/cert.jigar.au.eu.org.key"
+          common_name: "cert1.jigar.au.eu.org"
+          state_or_province_name: "VIC"
+          country_name: AU
+          organization_name: JigarOrg
+          subject_alt_name: "DNS:cert1.jigar.au.eu.org.pem,DNS:m.jigar.au.eu.org"
+
+
+      - name: Request certificate
+        community.crypto.acme_certificate:
+          account_key_content: "{{ private_key }}"
+          acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory          
+          csr: "/etc/letsencrypt/csr/cert.jigar.au.eu.org.pem"
+          modify_account: false
