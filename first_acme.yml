@@ -3,6 +3,9 @@
   hosts: all
   become: true
 
+  vars:
+    domain: "www3.jigar.au.eu.org"
+
   tasks:
         
       - name: Ensure the account exists
@@ -15,17 +18,25 @@
           contact: 
             - mailto:withjigs@yahoo.com
       
+      - name: Create directory to store keys
+        ansible.builtin.file:
+          path: "/etc/letsencrypt/archive/{{ domain }}"
+          state: directory
+          owner: root
+          group: root
+          mode: '0750'
+      
       - name: Create private key for domain
         community.crypto.openssl_privatekey:
-          path: "/etc/letsencrypt/keys/www2.jigar.au.eu.org.key"
+          path: "/etc/letsencrypt/archive/{{ domain }}/private_key.pem"
           type: RSA
           size: 4096
 
       - name: Generate CSR
         community.crypto.openssl_csr:
-          path: "/etc/letsencrypt/csr/www2.jigar.au.eu.org.pem"
-          privatekey_path: "/etc/letsencrypt/keys/www2.jigar.au.eu.org.key"
-          common_name: "cert2.jigar.au.eu.org"
+          path: "/etc/letsencrypt/archive/{{ domain }}/csr.pem"
+          privatekey_path: "/etc/letsencrypt/archive/{{ domain }}/private_key.pem"
+          common_name: "{{ domain }}"
           state_or_province_name: "VIC"
           country_name: AU
           organization_name: JigarOrg
@@ -36,6 +47,7 @@
         community.crypto.acme_certificate:
           account_key_content: "{{ private_key }}"
           acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory          
-          csr: "/etc/letsencrypt/csr/www2.jigar.au.eu.org.pem"
+          csr: "/etc/letsencrypt/archive/{{ domain }}/csr.pem"
+          fullchain_dest: "/etc/letsencrypt/archive/{{ domain }}/fullchain.pem"
           acme_version: 2
           modify_account: false
