@@ -4,7 +4,7 @@
   become: true
 
   vars:
-    domain: "www3.jigar.au.eu.org"
+    domain: "www4.jigar.au.eu.org"
 
   tasks:
         
@@ -40,7 +40,7 @@
           state_or_province_name: "VIC"
           country_name: AU
           organization_name: JigarOrg
-          subject_alt_name: "DNS:cert1.jigar.au.eu.org.pem,DNS:m.jigar.au.eu.org"
+          subject_alt_name: "DNS:cert1.jigar.au.eu.org,DNS:m.jigar.au.eu.org"
 
 
       - name: Request certificate
