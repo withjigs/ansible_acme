@@ -5,6 +5,8 @@
 
   tasks:
         
+    - debug: var=private_key
+
     - name: Ensure the account exists
       community.crypto.acme_account:
         account_key_content: "{{ private_key }}"
