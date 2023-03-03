@@ -15,10 +15,16 @@
           contact: 
             - mailto:withjigs@yahoo.com
       
+      - name: Create private key for domain
+        community.crypto.openssl_publickey:
+          path: "/etc/letsencrypt/keys/www.jigar.au.eu.org.key"
+          type: RSA
+          size: 4096
 
       - name: Generate CSR
         community.crypto.openssl_csr:
-          path: "/etc/letsencrypt/csr/cert.jigar.au.eu.org.pem"
+          path: "/etc/letsencrypt/csr/www.jigar.au.eu.org.pem"
+          privatekey_path: "/etc/letsencrypt/keys/www.jigar.au.eu.org.key"
           common_name: "cert1.jigar.au.eu.org"
           state_or_province_name: "VIC"
           country_name: AU
