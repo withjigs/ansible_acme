@@ -1,0 +1,7 @@
+- name: Schedule downtime
+  hosts: all
+
+  tasks:
+    - name: Print all
+      debug:
+        msg: "{{ fis_nagios_schedule_downtime_fix }}"
