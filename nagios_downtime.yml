@@ -4,4 +4,4 @@
   tasks:
     - name: Print all
       debug:
-        msg: "{{ fis_nagios_schedule_downtime_fix['start_date_time']|to_datetime }}"
+        msg: "{{ (fis_nagios_schedule_downtime_fix['start_date_time']|to_datetime).strftime('%s') }}"
