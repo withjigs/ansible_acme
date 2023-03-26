@@ -6,10 +6,11 @@
 
     - name: Add CNAME record
       community.general.cloudflare_dns:
-          zone: "jigar.au.eu.org"
-          type: CNAME
-          value: "swin.edu.au"
-          state: present
-          account_email: withjigs@gmail.com
-          account_api_token: "{{ api_key }}"
+        zone: "jigar.au.eu.org"
+        type: CNAME
+        value: "swin.edu.au"
+        state: present
+        account_email: withjigs@gmail.com
+        account_api_token: "{{ api_key }}"
+      delegate_to: localhost  
   
