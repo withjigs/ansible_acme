@@ -38,8 +38,6 @@
           state_or_province_name: "VIC"
           country_name: AU
           organization_name: JigarOrg
-          subject_alt_name: "DNS:cert1.jigar.au.eu.org,DNS:m.jigar.au.eu.org"
-
 
       - name: Create acme challenge
         community.crypto.acme_certificate:
@@ -85,17 +83,17 @@
               data: "{{ acme_certificate_challenge }}"
             delay: "{{ acme_certificate_challenge_ttl }}"
 
-        always:
+        # always:
 
-          - name: Delete cloudflare dns challenge record
-            community.general.cloudflare_dns:
-              zone: "{{ acme_certificate_zone }}"
-              type: TXT
-              state: absent
-              record: "{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]['dns-01']['resource'] }}.{{ acme_certificate_domain }}"
-              value: '"{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]["dns-01"]["resource_value"] }}"'
-              ttl: "{{ acme_certificate_challenge_ttl }}"
-              api_token: "{{ api_key }}"
+        #   - name: Delete cloudflare dns challenge record
+        #     community.general.cloudflare_dns:
+        #       zone: "{{ acme_certificate_zone }}"
+        #       type: TXT
+        #       state: absent
+        #       record: "{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]['dns-01']['resource'] }}.{{ acme_certificate_domain }}"
+        #       value: '"{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]["dns-01"]["resource_value"] }}"'
+        #       ttl: "{{ acme_certificate_challenge_ttl }}"
+        #       api_token: "{{ api_key }}"
 
       - name: Print everything
         ansible.builtin.shell:
