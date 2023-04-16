@@ -2,6 +2,7 @@
 - name: First acme 
   hosts: all
   become: true
+  gather_facts: no
 
   tasks:
         
@@ -17,7 +18,7 @@
       
       - name: Create directory to store keys
         ansible.builtin.file:
-          path: "/etc/letsencrypt/archive/{{ domain }}"
+          path: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}"
           state: directory
           owner: root
           group: root
@@ -25,15 +26,15 @@
       
       - name: Create private key for domain
         community.crypto.openssl_privatekey:
-          path: "/etc/letsencrypt/archive/{{ domain }}/private_key.pem"
+          path: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/private_key.pem"
           type: RSA
           size: 4096
 
       - name: Generate CSR
         community.crypto.openssl_csr:
-          path: "/etc/letsencrypt/archive/{{ domain }}/csr.pem"
-          privatekey_path: "/etc/letsencrypt/archive/{{ domain }}/private_key.pem"
-          common_name: "{{ domain }}"
+          path: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/csr.pem"
+          privatekey_path: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/private_key.pem"
+          common_name: "{{ acme_certificate_domain }}"
           state_or_province_name: "VIC"
           country_name: AU
           organization_name: JigarOrg
@@ -45,11 +46,56 @@
           account_key_content: "{{ private_key }}"
           challenge: dns-01
           acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory          
-          csr: "/etc/letsencrypt/archive/{{ domain }}/csr.pem"
-          fullchain_dest: "/etc/letsencrypt/archive/{{ domain }}/fullchain.pem"
+          csr: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/csr.pem"
+          fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/fullchain.pem"
           acme_version: 2
           modify_account: false
-        register: challenge
+        register: acme_certificate_challenge
       
       - debug:
           var: challenge
+
+      - name: validate acme certificate
+        when: acme_certificate_challenge is changed
+        block:
+
+          - name: create cloudflare dns challenge record
+            community.general.cloudflare_dns:
+              zone: "{{ acme_certificate_zone }}"
+              type: TXT
+              state: present
+              record: "{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]['dns-01']['resource'] }}.{{ acme_certificate_domain }}"
+              value: '"{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]["dns-01"]["resource_value"] }}"'
+              ttl: "{{ acme_certificate_challenge_ttl }}"
+              api_token: "{{ api_key }}"
+
+          - name: wait for txt record replication
+            ansible.builtin.pause:
+              seconds: "{{ acme_certificate_challenge_wait }}"
+
+          - name: Validate challenge
+            community.crypto.acme_certificate:
+              account_key_content: "{{ private_key }}"
+              challenge: dns-01
+              csr: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/csr.pem"
+              dest: /etc/letsencrypt/archive/{{ acme_certificate_domain }}/cert.pem
+              fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/chain_cert.pem"
+              data: "{{ acme_certificate_challenge }}"
+              delay: "{{ acme_certificate_challenge_ttl }}"
+
+        always:
+
+          - name: Delete cloudflare dns challenge record
+            community.general.cloudflare_dns:
+              zone: "{{ acme_certificate_zone }}"
+              type: TXT
+              state: absent
+              record: "{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]['dns-01']['resource'] }}.{{ acme_certificate_domain }}"
+              value: '"{{ acme_certificate_challenge.challenge_data[acme_certificate_domain]["dns-01"]["resource_value"] }}"'
+              ttl: "{{ acme_certificate_challenge_ttl }}"
+              api_token: "{{ api_key }}"
+
+      - name: Print everything
+        ansible.builtin.shell:
+          cmd: "cat /etc/letsencrypt/archive/{{ acme_certificate_domain }}/csr.pem ; echo ; cat /etc/letsencrypt/archive/{{ acme_certificate_domain }}/chain_cert.pem"
+            
