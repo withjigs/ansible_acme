@@ -83,7 +83,7 @@
               dest: /etc/letsencrypt/archive/{{ acme_certificate_domain }}/cert.pem
               fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/chain_cert.pem"
               data: "{{ acme_certificate_challenge }}"
-              delay: "{{ acme_certificate_challenge_ttl }}"
+            delay: "{{ acme_certificate_challenge_ttl }}"
 
         always:
 
