@@ -53,7 +53,7 @@
         register: acme_certificate_challenge
       
       - debug:
-          var: challenge
+          var: acme_certificate_challenge
 
       - name: validate acme certificate
         when: acme_certificate_challenge is changed
