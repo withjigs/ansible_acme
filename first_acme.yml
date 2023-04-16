@@ -48,3 +48,7 @@
           fullchain_dest: "/etc/letsencrypt/archive/{{ domain }}/fullchain.pem"
           acme_version: 2
           modify_account: false
+        register: challenge
+      
+      - debug:
+          var: challenge
