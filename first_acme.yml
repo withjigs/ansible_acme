@@ -76,6 +76,8 @@
           - name: Validate challenge
             community.crypto.acme_certificate:
               account_key_content: "{{ private_key }}"
+              acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
+              acme_version: 2              
               challenge: dns-01
               csr: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/csr.pem"
               dest: /etc/letsencrypt/archive/{{ acme_certificate_domain }}/cert.pem
