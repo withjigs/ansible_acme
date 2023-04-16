@@ -3,9 +3,6 @@
   hosts: all
   become: true
 
-  vars:
-    domain: "www4.jigar.au.eu.org"
-
   tasks:
         
       - name: Ensure the account exists
