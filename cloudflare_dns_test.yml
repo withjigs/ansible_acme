@@ -4,13 +4,22 @@
 
   tasks:
 
-    - name: Add CNAME record
+    - name: Create a record using api token
       community.general.cloudflare_dns:
         zone: "jigar.au.eu.org"
-        type: CNAME
-        value: "swin.edu.au"
-        state: present
-        account_email: withjigs@gmail.com
-        account_api_token: "{{ api_key }}"
-      delegate_to: localhost  
+        record: test
+        type: A
+        value: 127.0.0.1
+        api_token: "{{ api_key }}"
+      delegate_to: localhost
+
+    # - name: Add CNAME record
+    #   community.general.cloudflare_dns:
+    #     zone: 
+    #     type: CNAME
+    #     value: "swin.edu.au"
+    #     state: present
+    #     account_email: withjigs@gmail.com
+    #     account_api_token: 
+  
   
