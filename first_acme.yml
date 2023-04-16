@@ -40,9 +40,10 @@
           subject_alt_name: "DNS:cert1.jigar.au.eu.org,DNS:m.jigar.au.eu.org"
 
 
-      - name: Request certificate
+      - name: Create acme challenge
         community.crypto.acme_certificate:
           account_key_content: "{{ private_key }}"
+          challenge: dns-01
           acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory          
           csr: "/etc/letsencrypt/archive/{{ domain }}/csr.pem"
           fullchain_dest: "/etc/letsencrypt/archive/{{ domain }}/fullchain.pem"
