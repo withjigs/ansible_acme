@@ -1,0 +1,28 @@
+
+# General ACME vars
+acme_directory_url: "https://acme-staging-v02.api.letsencrypt.org/directory"
+acme_version: 2
+
+### ACME account vars
+acme_account_private_key: "{{ private_key }}"   ## From Ansible credentilas
+acme_account_contact:
+  - mailto:withjigs@yahoo.com
+
+### ACME challenge vars
+acme_certificate_challenge_wait: 60
+acme_certificate_challenge_ttl: 1
+
+
+### Certificate Request
+acme_cert_state: "VIC"
+acme_cert_country: "AU"
+acme_cert_org: "FIS"
+acme_cert_SANs: []
+#  - DNS: www.domain.tld
+#  - DNS: m.domain.tld  
+
+### ACME Certificate store
+acme_keystore_base_path: /var/keystore
+
+### Cloudflare Vars
+

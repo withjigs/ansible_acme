@@ -1,0 +1,85 @@
+- name: Pre-checks
+  ansible.builtin.include_tasks: pre-checks.yml
+
+- name: Ensure the account exists
+  community.crypto.acme_account:
+    account_key_content: "{{acme_account_private_key}}"
+    state: present
+    terms_agreed: true
+    acme_version: "{{ acme_version }}"
+    acme_directory: "{{ acme_directory_url }}"
+    contact: "{{ acme_account_contact }}"
+
+- name: Create private key for the certificate
+  community.crypto.openssl_privatekey:
+    path: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/private_key.pem"
+    type: RSA
+    size: 4096
+
+- name: Generate CSR
+  community.crypto.openssl_csr:
+    path: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/csr.pem"
+    privatekey_path: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/private_key.pem"
+    common_name: "{{ acme_certificate_domain }}"
+    state_or_province_name: "{{ acme_cert_state }}"
+    country_name: "{{ acme_cert_country }}"
+    organization_name: "{{ acme_cert_org }}"
+    subject_alt_name: "{{ acme_cert_SANs | join(',') }}"
+
+- name: Create acme challenge
+  community.crypto.acme_certificate:
+    account_key_content: "{{ acme_account_private_key }}"
+    challenge: dns-01
+    acme_directory: "{{ acme_directory_url }}"
+    csr: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/csr.pem"
+    fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/fullchain.pem"
+    acme_version: "{{ acme_version }}"
+    modify_account: false
+  register: acme_certificate_challenge
+
+- name: validate acme certificate
+  when: acme_certificate_challenge is changed
+  block:
+
+    - name: create cloudflare dns challenge record
+      community.general.cloudflare_dns:
+        zone: "{{ acme_certificate_zone }}"
+        type: TXT
+        state: present
+        record: "{{ san['dns-01']['record'] }}"
+        value: '"{{ san['dns-01']['resource_value']"
+        ttl: "{{ acme_certificate_challenge_ttl }}"
+        api_token: "{{ api_key }}"
+      with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
+      loop_control:
+        loop_var: san
+
+    - name: wait for txt record replication
+      ansible.builtin.pause:
+        seconds: "{{ acme_certificate_challenge_wait }}"
+
+    - name: Validate challenge
+      community.crypto.acme_certificate:
+        account_key_content: "{{ acme_account_private_key }}"
+        acme_directory: "{{ acme_directory_url }}"
+        acme_version: "{{ acme_version }}"              
+        challenge: dns-01
+        csr: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/csr.pem"
+        dest: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/cert.pem"
+        fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/fullchain.pem"
+        data: "{{ acme_certificate_challenge }}"
+      delay: "{{ acme_certificate_challenge_ttl }}"
+
+  always:
+    - name: Delete cloudflare dns challenge record
+      community.general.cloudflare_dns:
+        zone: "{{ acme_certificate_zone }}"
+        type: TXT
+        state: absent
+        record: "{{ san['dns-01']['record'] }}"
+        value: '"{{ san['dns-01']['resource_value']"
+        ttl: "{{ acme_certificate_challenge_ttl }}"
+        api_token: "{{ api_key }}"
+      with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
+      loop_control:
+        loop_var: san

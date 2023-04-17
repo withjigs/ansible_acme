@@ -1,0 +1,16 @@
+- name: Ensure required vars are defined
+  ansible.builtin.assert:
+    that:
+      - "acme_certificate_domain is defined"
+      - "acme_certificate_zone is defined"
+
+- name: Ensure Base Path Exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  with_items:
+    - "{{ acme_keystore_base_path }}"
+    - "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}"
