@@ -24,7 +24,7 @@
     state_or_province_name: "{{ acme_cert_state }}"
     country_name: "{{ acme_cert_country }}"
     organization_name: "{{ acme_cert_org }}"
-    subject_alt_name: "{{ acme_cert_SANs | join(',') }}"
+    subject_alt_name: "DNS:{{ acme_certificate_domain }}{{ ',DNS:' + ',DNS:'.join(acme_cert_SANs) if acme_cert_SANs else '' }}"
 
 - name: Create acme challenge
   community.crypto.acme_certificate:

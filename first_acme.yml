@@ -12,8 +12,8 @@
         acme_certificate_domain: "www6.jigar.au.eu.org"
         acme_certificate_zone: "jigar.au.eu.org"
         acme_cert_SANs:
-          - "DNS: m2.jigar.au.eu.org"
-          - "DNS: s2.jigar.au.eu.org"
+          - "m2.jigar.au.eu.org"
+          - "s2.jigar.au.eu.org"
         
       # - name: Ensure the account exists
       #   community.crypto.acme_account:
