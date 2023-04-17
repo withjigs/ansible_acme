@@ -41,21 +41,20 @@
   when: acme_certificate_challenge is changed
   block:
 
-    - name: Print challenge
-      ansible.builtin.debug:
-        var: san
-      with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
-      loop_control:
-        loop_var: san
+    # - name: Print challenge
+    #   ansible.builtin.debug:
+    #     var: san['value']
+    #   with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
+    #   loop_control:
+    #     loop_var: san
       
-
     - name: create cloudflare dns challenge record
       community.general.cloudflare_dns:
         zone: "{{ acme_certificate_zone }}"
         type: TXT
         state: present
         record: "{{ san['value']['dns-01']['record'] }}"
-        value: "{{ san['value']['dns-01']['resource_value']"
+        value: "{{ san['value']['dns-01']['resource_value'] }}"
         ttl: "{{ acme_certificate_challenge_ttl }}"
         api_token: "{{ cloudflare_api_key }}"
       with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
@@ -84,8 +83,8 @@
         zone: "{{ acme_certificate_zone }}"
         type: TXT
         state: absent
-        record: "{{ san['dns-01']['record'] }}"
-        value: "{{ san['dns-01']['resource_value']"
+        record: "{{ san['value']['dns-01']['record'] }}"
+        value: "{{ san['value']['dns-01']['resource_value'] }}"
         ttl: "{{ acme_certificate_challenge_ttl }}"
         api_token: "{{ cloudflare_api_key }}"
       with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
