@@ -25,4 +25,5 @@ acme_cert_SANs: []
 acme_keystore_base_path: /var/keystore
 
 ### Cloudflare Vars
+cloudflare_api_key: "{{ api_key }}"
 
