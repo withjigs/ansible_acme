@@ -41,6 +41,14 @@
   when: acme_certificate_challenge is changed
   block:
 
+    - name: Print challenge
+      ansible.builtin.debug:
+        var: san
+      with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
+      loop_control:
+        loop_var: san
+      
+
     - name: create cloudflare dns challenge record
       community.general.cloudflare_dns:
         zone: "{{ acme_certificate_zone }}"
