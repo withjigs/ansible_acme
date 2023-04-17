@@ -9,11 +9,15 @@
       ansible.builtin.include_role:
         name: acme_cert
       vars:
-        acme_certificate_domain: "www6.jigar.au.eu.org"
+        acme_certificate_domain: "www7.jigar.au.eu.org"
         acme_certificate_zone: "jigar.au.eu.org"
         acme_cert_SANs:
           - "m2.jigar.au.eu.org"
           - "s2.jigar.au.eu.org"
+    
+    - name: Print cert
+      ansible.builtin.shell:
+        cmd: "cat {{ acme_keystore_base_path }}/{{acme_certificate_domain}}/cert.pem"
         
       # - name: Ensure the account exists
       #   community.crypto.acme_account:
