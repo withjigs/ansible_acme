@@ -46,8 +46,8 @@
         zone: "{{ acme_certificate_zone }}"
         type: TXT
         state: present
-        record: "{{ san['dns-01']['record'] }}"
-        value: "{{ san['dns-01']['resource_value']"
+        record: "{{ san['value']['dns-01']['record'] }}"
+        value: "{{ san['value']['dns-01']['resource_value']"
         ttl: "{{ acme_certificate_challenge_ttl }}"
         api_token: "{{ cloudflare_api_key }}"
       with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
