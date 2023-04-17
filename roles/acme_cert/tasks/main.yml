@@ -37,18 +37,12 @@
     modify_account: false
   register: acme_certificate_challenge
 
-- name: validate acme certificate
+- name: Validate acme certificate
   when: acme_certificate_challenge is changed
   block:
 
-    # - name: Print challenge
-    #   ansible.builtin.debug:
-    #     var: san['value']
-    #   with_dict: "{{ acme_certificate_challenge['challenge_data'] }}"
-    #   loop_control:
-    #     loop_var: san
       
-    - name: create cloudflare dns challenge record
+    - name: Create cloudflare dns challenge record
       community.general.cloudflare_dns:
         zone: "{{ acme_certificate_zone }}"
         type: TXT
@@ -61,7 +55,7 @@
       loop_control:
         loop_var: san
 
-    - name: wait for txt record replication
+    - name: Wait for txt record replication
       ansible.builtin.pause:
         seconds: "{{ acme_certificate_challenge_wait }}"
 
