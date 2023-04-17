@@ -73,7 +73,7 @@
         challenge: dns-01
         csr: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/csr.pem"
         dest: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/cert.pem"
-        fullchain_dest: "/etc/letsencrypt/archive/{{ acme_certificate_domain }}/fullchain.pem"
+        fullchain_dest: "{{ acme_keystore_base_path }}/{{acme_certificate_domain}}/fullchain.pem"
         data: "{{ acme_certificate_challenge }}"
       delay: "{{ acme_certificate_challenge_ttl }}"
 
