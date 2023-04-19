@@ -3,15 +3,17 @@
   become: true
   gather_facts: no
 
-- name: Ensure ACME account exists
-  community.crypto.acme_account:
-    acme_directory: "{{ acme_directory_url }}"
-    acme_version: 2
-    account_key_content: "{{ private_key }}"
-    state: present
-    contact: "{{ acme_account_contact }}"
-    terms_agreed: true
-    external_account_binding:
-      kid: "{{ acme_internal_eab_kid }}"
-      alg: "HS256"
-      key: "{{ acme_internal_eab_hmac_key }}"
+  tasks:
+
+    - name: Ensure ACME account exists
+      community.crypto.acme_account:
+        acme_directory: "{{ acme_directory_url }}"
+        acme_version: 2
+        account_key_content: "{{ private_key }}"
+        state: present
+        contact: "{{ acme_account_contact }}"
+        terms_agreed: true
+        external_account_binding:
+          kid: "{{ acme_internal_eab_kid }}"
+          alg: "HS256"
+          key: "{{ acme_internal_eab_hmac_key }}"
