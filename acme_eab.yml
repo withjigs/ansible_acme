@@ -5,15 +5,39 @@
 
   tasks:
 
-    - name: Ensure ACME account exists
-      community.crypto.acme_account:
-        acme_directory: "{{ acme_directory_url }}"
-        acme_version: 2
+    # - name: Ensure ACME account exists
+    #   community.crypto.acme_account:
+    #     acme_directory: "{{ acme_directory_url }}"
+    #     acme_version: 2
+    #     account_key_content: "{{ private_key }}"
+    #     state: present
+    #     contact: "{{ acme_account_contact }}"
+    #     terms_agreed: true
+    #     external_account_binding:
+    #       kid: "{{ acme_internal_eab_kid }}"
+    #       alg: "HS256"
+    #       key: "{{ acme_internal_eab_hmac_key }}"
+
+    - name: Create private key for the certificate
+      community.crypto.openssl_privatekey:
+        path: "/tmp/private_key.pem"
+        type: RSA
+        size: 4096
+
+    - name: Generate CSR
+      community.crypto.openssl_csr:
+        path: "/tmp/csr.pem"
+        privatekey_path: "/tmp/private_key.pem"
+        common_name: "{{ acme_certificate_domain }}"
+        state_or_province_name: "VIC"
+        country_name: "AU"
+        organization_name: "FIS Global"
+
+    - name: Create acme challenge
+      community.crypto.acme_certificate:
         account_key_content: "{{ private_key }}"
-        state: present
-        contact: "{{ acme_account_contact }}"
-        terms_agreed: true
-        external_account_binding:
-          kid: "{{ acme_internal_eab_kid }}"
-          alg: "HS256"
-          key: "{{ acme_internal_eab_hmac_key }}"
+        acme_directory: "{{ acme_directory_url }}"
+        acme_version: "2"
+        csr: "/tmp/csr.pem"
+        dest: "/tmp/cert.pem"
+        fullchain_dest: "/tmp/fullchain.pem"
